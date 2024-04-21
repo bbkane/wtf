@@ -1,0 +1,13 @@
+# linters-settings:
+#   errcheck:
+#     exclude-functions:
+#       - io/ioutil.ReadFile
+#       - io.Copy(*bytes.Buffer)
+#       - io.Copy(os.Stdout)
+#       # https://github.com/kisielk/errcheck
+#       # their example is: (*net/http.Client).Do
+#       - (*database/sql.Tx).Rollback
+linters:
+  disable:
+    - errcheck
+  fast: false

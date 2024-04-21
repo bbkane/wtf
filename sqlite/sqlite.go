@@ -307,10 +307,3 @@ func FormatError(err error) error {
 		return err
 	}
 }
-
-// logstr is a helper function for printing and returning a string.
-// It can be useful for printing out query text.
-func logstr(s string) string {
-	println(s)
-	return s
-}

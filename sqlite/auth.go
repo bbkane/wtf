@@ -187,7 +187,7 @@ func findAuths(ctx context.Context, tx *Tx, filter wtf.AuthFilter) (_ []*wtf.Aut
 
 	// Execute the query with WHERE clause and LIMIT/OFFSET injected.
 	rows, err := tx.QueryContext(ctx, `
-		SELECT 
+		SELECT
 		    id,
 		    user_id,
 		    source,
