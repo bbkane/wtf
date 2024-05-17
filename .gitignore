@@ -1,4 +1,5 @@
-.DS_Store
-*.test
 *.ego.go
+*.test
+.DS_Store
 /node_modules
+__debug_bin692588858
