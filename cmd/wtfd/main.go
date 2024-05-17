@@ -14,7 +14,6 @@ import (
 
 	"github.com/benbjohnson/wtf"
 	"github.com/benbjohnson/wtf/http"
-	"github.com/benbjohnson/wtf/inmem"
 	"github.com/benbjohnson/wtf/sqlite"
 	"github.com/pelletier/go-toml"
 )
@@ -150,7 +149,7 @@ func (m *Main) Run(ctx context.Context) (err error) {
 	// Initialize event service for real-time events.
 	// We are using an in-memory implementation but this could be changed to
 	// a more robust service if we expanded out to multiple nodes.
-	eventService := inmem.NewEventService()
+	eventService := wtf.NopEventService()
 
 	// Attach our event service to the SQLite database so it can publish events.
 	m.DB.EventService = eventService
