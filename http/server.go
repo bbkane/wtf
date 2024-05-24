@@ -18,25 +18,10 @@ import (
 	"github.com/benbjohnson/wtf/http/html"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
-)
-
-// Generic HTTP metrics.
-var (
-	requestCount = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "wtf_http_request_count",
-		Help: "Total number of requests by route",
-	}, []string{"method", "path"})
-
-	requestSeconds = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "wtf_http_request_seconds",
-		Help: "Total amount of request time by route, in seconds",
-	}, []string{"method", "path"})
 )
 
 // ShutdownTimeout is the time given for outstanding requests to finish before shutdown.
@@ -100,7 +85,6 @@ func NewServer() *Server {
 	router := s.router.PathPrefix("/").Subrouter()
 	router.Use(s.authenticate)
 	router.Use(loadFlash)
-	router.Use(trackMetrics)
 
 	// Handle authentication check within handler function for home page.
 	router.HandleFunc("/", s.handleIndex).Methods("GET")
@@ -109,7 +93,10 @@ func NewServer() *Server {
 	{
 		r := s.router.PathPrefix("/").Subrouter()
 		r.Use(s.requireNoAuth)
-		s.registerAuthRoutes(r)
+		r.HandleFunc("/login", s.handleLogin).Methods("GET")
+		r.HandleFunc("/logout", s.handleLogout).Methods("DELETE")
+		r.HandleFunc("/oauth/github", s.handleOAuthGitHub).Methods("GET")
+		r.HandleFunc("/oauth/github/callback", s.handleOAuthGitHubCallback).Methods("GET")
 	}
 
 	// Register authenticated routes.
@@ -358,24 +345,6 @@ func loadFlash(next http.Handler) http.Handler {
 
 		// Delegate to next HTTP handler.
 		next.ServeHTTP(w, r)
-	})
-}
-
-// trackMetrics is middleware for tracking the request count and timing per route.
-func trackMetrics(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Obtain path template & start time of request.
-		t := time.Now()
-		tmpl := requestPathTemplate(r)
-
-		// Delegate to next handler in middleware chain.
-		next.ServeHTTP(w, r)
-
-		// Track total time unless it is the WebSocket endpoint for events.
-		if tmpl != "" && tmpl != "/events" {
-			requestCount.WithLabelValues(r.Method, tmpl).Inc()
-			requestSeconds.WithLabelValues(r.Method, tmpl).Add(float64(time.Since(t).Seconds()))
-		}
 	})
 }
 

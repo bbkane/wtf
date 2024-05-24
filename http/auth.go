@@ -11,17 +11,8 @@ import (
 	"github.com/benbjohnson/wtf"
 	"github.com/benbjohnson/wtf/http/html"
 	"github.com/google/go-github/v32/github"
-	"github.com/gorilla/mux"
 	"golang.org/x/oauth2"
 )
-
-// registerAuthRoutes is a helper function to register routes to a router.
-func (s *Server) registerAuthRoutes(r *mux.Router) {
-	r.HandleFunc("/login", s.handleLogin).Methods("GET")
-	r.HandleFunc("/logout", s.handleLogout).Methods("DELETE")
-	r.HandleFunc("/oauth/github", s.handleOAuthGitHub).Methods("GET")
-	r.HandleFunc("/oauth/github/callback", s.handleOAuthGitHubCallback).Methods("GET")
-}
 
 // handleLogin handles the "GET /login" route. It simply renders an HTML login form.
 func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
