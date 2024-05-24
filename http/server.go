@@ -65,11 +65,8 @@ type Server struct {
 	GitHubClientSecret string
 
 	// Servics used by the various HTTP routes.
-	AuthService           wtf.AuthService
-	DialService           wtf.DialService
-	DialMembershipService wtf.DialMembershipService
-	EventService          wtf.EventService
-	UserService           wtf.UserService
+	AuthService wtf.AuthService
+	UserService wtf.UserService
 }
 
 // NewServer returns a new instance of Server.
@@ -120,8 +117,6 @@ func NewServer() *Server {
 		r := router.PathPrefix("/").Subrouter()
 		r.Use(s.requireAuth)
 		r.HandleFunc("/settings", s.handleSettings).Methods("GET")
-		s.registerDialRoutes(r)
-		s.registerDialMembershipRoutes(r)
 		s.registerEventRoutes(r)
 	}
 

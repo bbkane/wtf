@@ -11,9 +11,6 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
-	"time"
-
-	"github.com/benbjohnson/wtf/mock"
 
 	"github.com/benbjohnson/wtf"
 	"github.com/benbjohnson/wtf/http"
@@ -169,33 +166,8 @@ func (m *Main) Run(ctx context.Context) (err error) {
 
 	// Instantiate SQLite-backed services.
 	authService := sqlite.NewAuthService(m.DB)
-	dialService := &mock.DialService{
-		FindDialsFn: func(ctx context.Context, filter wtf.DialFilter) ([]*wtf.Dial, int, error) {
-			dial := &wtf.Dial{
-				ID:         1,
-				UserID:     1,
-				User:       &wtf.User{ID: 1, Name: "USER1"},
-				Name:       "DIAL1",
-				Value:      50,
-				InviteCode: "INVITECODE",
-				CreatedAt:  time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
-				UpdatedAt:  time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
-			}
-			return []*wtf.Dial{dial}, 1, nil
-		},
-		AverageDialValueReportFn: func(ctx context.Context, start, end time.Time, interval time.Duration) (*wtf.DialValueReport, error) {
-			return &wtf.DialValueReport{
-				Records: []*wtf.DialValueRecord{
-					{
-						Value:     0,
-						Timestamp: time.Now(),
-					},
-				},
-			}, nil
-		},
-	}
+
 	// dialService := sqlite.NewDialService(m.DB)
-	dialMembershipService := sqlite.NewDialMembershipService(m.DB)
 	userService := sqlite.NewUserService(m.DB)
 
 	// Attach user service to Main for testing.
@@ -211,9 +183,6 @@ func (m *Main) Run(ctx context.Context) (err error) {
 
 	// Attach underlying services to the HTTP server.
 	m.HTTPServer.AuthService = authService
-	m.HTTPServer.DialService = dialService
-	m.HTTPServer.DialMembershipService = dialMembershipService
-	m.HTTPServer.EventService = eventService
 	m.HTTPServer.UserService = userService
 
 	// Start the HTTP server.

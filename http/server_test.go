@@ -46,9 +46,7 @@ func MustOpenServer(tb testing.TB) *Server {
 
 	// Assign mocks to actual server's services.
 	s.Server.AuthService = &s.AuthService
-	s.Server.DialService = &s.DialService
-	s.Server.DialMembershipService = &s.DialMembershipService
-	s.Server.EventService = &s.EventService
+
 	s.Server.UserService = &s.UserService
 
 	// Begin running test server.
