@@ -433,38 +433,77 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var err error
 	var tmpl html.IndexTemplate
 
-	// Fetch all dials the user is a member of.
-	// If user is not a member of any dials, redirect to dial list which
-	// includes a description of how to start.
-	if tmpl.Dials, _, err = s.DialService.FindDials(r.Context(), wtf.DialFilter{}); err != nil {
-		Error(w, r, err)
-		return
-	} else if len(tmpl.Dials) == 0 {
-		http.Redirect(w, r, "/dials", http.StatusFound)
-		return
+	tmpl.Dials = []*wtf.Dial{
+		{
+			ID:     1,
+			UserID: 1,
+			User: &wtf.User{
+				ID:        1,
+				Name:      "USER1",
+				Email:     "",
+				APIKey:    "",
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+				Auths:     []*wtf.Auth{},
+			},
+			Name:        "DIAL1",
+			InviteCode:  "INVITECODE",
+			Value:       50,
+			CreatedAt:   time.Time{},
+			UpdatedAt:   time.Time{},
+			Memberships: []*wtf.DialMembership{},
+		},
 	}
 
-	// Fetch recently updated members.
-	if tmpl.Memberships, _, err = s.DialMembershipService.FindDialMemberships(r.Context(), wtf.DialMembershipFilter{
-		Limit:  20,
-		SortBy: "updated_at_desc",
-	}); err != nil {
-		Error(w, r, err)
-		return
+	tmpl.Memberships = []*wtf.DialMembership{
+		{
+			ID:     1,
+			DialID: 1,
+			Dial: &wtf.Dial{
+				ID:     1,
+				UserID: 1,
+				User: &wtf.User{
+					ID:        1,
+					Name:      "USER1",
+					Email:     "",
+					APIKey:    "",
+					CreatedAt: time.Time{},
+					UpdatedAt: time.Time{},
+					Auths:     []*wtf.Auth{},
+				},
+				Name:        "DIAL1",
+				InviteCode:  "INVITECODE",
+				Value:       50,
+				CreatedAt:   time.Time{},
+				UpdatedAt:   time.Time{},
+				Memberships: []*wtf.DialMembership{},
+			},
+			UserID: 1,
+			User: &wtf.User{
+				ID:        1,
+				Name:      "USER1",
+				Email:     "",
+				APIKey:    "",
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+				Auths:     []*wtf.Auth{},
+			},
+			Value:     42,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+		},
 	}
 
-	// Fetch historical average WTF values.
-	interval := time.Minute
-	end := time.Now().Truncate(interval).Add(interval)
-	start := end.Add(-1 * time.Hour)
-	if tmpl.AverageDialValueReport, err = s.DialService.AverageDialValueReport(r.Context(), start, end, interval); err != nil {
-		Error(w, r, err)
-		return
+	tmpl.AverageDialValueReport = &wtf.DialValueReport{
+		Records: []*wtf.DialValueRecord{
+			{
+				Value:     0,
+				Timestamp: time.Time{},
+			},
+		},
 	}
-
 	// Render the template to the response.
 	tmpl.Render(r.Context(), w)
 }
